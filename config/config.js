@@ -1,6 +1,8 @@
 import 'dotenv/config';
 
-export const config = {
+const config = {
   port: process.env.PORT,
-  uriMongoDB: process.env.URIMONGODB
-} 
+  uriMongoDB: process.env.URIMONGODB,
+};
+
+export default config;

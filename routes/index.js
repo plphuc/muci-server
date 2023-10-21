@@ -1,3 +1,3 @@
-import saveImgRouter from "./saveImgRouter.js";
+import saveImgRouter from './saveImgRouter.js';
 
-export {saveImgRouter}
+export { saveImgRouter };
