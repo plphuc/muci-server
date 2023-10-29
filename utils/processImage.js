@@ -20,4 +20,3 @@ export function imageEncodeToBase64(filePath) {
   return blob;
 }
 
-base64DecodeToImage();

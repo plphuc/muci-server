@@ -29,11 +29,18 @@ const userSchema = new mongoose.Schema({
     minLength: 8,
     validate(value) {
       if (!value.match(/\d/) || !value.match(/[a-zA-Z]/)) {
-        throw new Error('Password must contain at least one letter and one number');
+        throw new Error(
+          'Password must contain at least one letter and one number'
+        );
       }
     },
   },
 });
 
-const User = mongoose.model('user', userSchema);
+userSchema.statics.isEmailTaken = async function (email) {
+  const user = await this.findOne({ email: email });
+  return !!user;
+};
+
+const User = mongoose.model('User', userSchema);
 export default User;
