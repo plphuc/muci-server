@@ -1,18 +1,26 @@
 import httpStatus from 'http-status';
-import ApiError from './apiError';
-import pickKeys from './pickKeys';
+import ApiError from '../utils/apiError.js';
+import pickKeys from '../utils/pickKeys.js';
+import Joi from 'joi';
 
-const validate = (schema) => (req, res, next) => {
+const sampleUser = {
+  username: 'squidysupervip',
+  name: 'Thành Vũ',
+  email: 'vcngthnh@gmail.com',
+  password: '/PYYN/k0DAPFIjCqiNB/tgi/GbH6GI6/LiIhfRoSl4Y=',
+};
+
+const validateReq = (schema) => (req, res, next) => {
   // get keys that are needed to validate from objectToValidate
   const validSchema = pickKeys(schema, ['params', 'query', 'body']);
   const objectToValidate = pickKeys(req, Object.keys(validSchema));
 
-  // objectToValidate.
-
-  const { value, error } = validSchema.validate(objectToValidate, {
+  // Joi.compile convert object to Joi object
+  const { value, error } = Joi.compile(validSchema).validate(objectToValidate, {
     abortEarly: false,
     allowUnknown: true,
   });
+
   if (error) {
     const errorMessages = error.details.reduce((errorMessages, key) => {
       errorMessages.push(key.message);
@@ -20,6 +28,8 @@ const validate = (schema) => (req, res, next) => {
     }, []);
     return next(new ApiError(httpStatus.BAD_REQUEST, errorMessages));
   }
-  // Object.assign(req, value);
-  // return next();
+  Object.assign(req, value);
+  return next();
 };
+
+export default validateReq;
