@@ -9,4 +9,12 @@ const createUser = async (userData) => {
   return User.create(userData);
 };
 
-export { createUser };
+const getUserById = async (id) => {
+  const user = await User.findOne({_id: id})
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'User not found');
+  }
+  return user;
+}
+
+export { createUser, getUserById };

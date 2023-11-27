@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
 
-const pageSchema = mongoose.Schema({
+const pageSchema = new mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -10,15 +10,25 @@ const pageSchema = mongoose.Schema({
     type: String,
   },
   backgroundImg: {},
-  comment: {
+  description: {
     type: String,
   },
-  user: {
+  owner: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: 'User',
+    required: true, 
+    
+  },
+  pageChildren: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Page' }],
+  content: {
+    type: String,
+  },
+  isFavPage: {type: Boolean, default: false},
+  sharedUser: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'User',
     required: true,
   },
-  childrenPages: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Page' }],
 });
 
 const Page = mongoose.model('Page', pageSchema);

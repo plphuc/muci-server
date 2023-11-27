@@ -32,4 +32,19 @@ const validateReq = (schema) => (req, res, next) => {
   return next();
 };
 
-export default validateReq;
+const validateToken = async (schema) => (req, res, next) => {
+  const checkToken = req.headers.authorization.split(' ');
+  if (checkToken[0] === 'Bearer') {
+    const refreshToken = checkToken[1]; // Joi.compile convert object to Joi object
+    const { value, error } = Joi.compile(schema).validate(
+      { refreshToken },
+      {
+        abortEarly: false,
+        allowUnknown: true,
+      }
+    );
+    return next(new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token'));
+  }
+};
+
+export { validateReq, validateToken };

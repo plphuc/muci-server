@@ -1,7 +1,11 @@
 import Joi from 'joi';
 import { password } from './customValidation.js';
 
-const createUserSchema = {
+const getUser = {
+  refreshToken: Joi.string().required().invalid(''),
+};
+
+const register = {
   body: Joi.object().keys({
     email: Joi.string().required().email().invalid(''),
     password: Joi.string().required().custom(password),
@@ -10,4 +14,10 @@ const createUserSchema = {
   }),
 };
 
-export { createUserSchema };
+const login = {
+  body: Joi.object().keys({
+    email: Joi.string().required().email().invalid(''),
+    password: Joi.string().required().custom(password),
+  }),
+};
+export { register, login, getUser };

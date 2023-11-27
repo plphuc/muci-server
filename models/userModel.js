@@ -42,5 +42,10 @@ userSchema.statics.isEmailTaken = async function (email) {
   return !!user;
 };
 
+userSchema.methods.isPasswordMatch = async function (password) {
+  const user = this;
+  return password === user.password;
+};
+
 const User = mongoose.model('User', userSchema);
 export default User;

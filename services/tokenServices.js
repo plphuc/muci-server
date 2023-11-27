@@ -40,7 +40,7 @@ const saveToken = async (refreshToken, userId, expireTime, type) => {
   return tokenDoc;
 };
 
-const generateAuthTokens = (user) => {
+const generateAuthTokens = async (user) => {
   // help set expire time, return will calculate from current and expire time
   const accessTokenExpireTime = moment().add(config.expireTime, 'minutes');
   const accessToken = generateToken(
@@ -55,6 +55,11 @@ const generateAuthTokens = (user) => {
     refreshTokenExpireTime,
     tokenTypes.REFRESH
   );
+  await saveToken(
+    refreshToken,
+    user.id,
+    refreshTokenExpireTime,
+    tokenTypes.REFRESH)
 
   return {
     access: {
