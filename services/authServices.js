@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import { userServices } from './index.js';
+import { tokenServices, userServices } from './index.js';
 import ApiError from '../utils/apiError.js';
 import Token from '../models/tokenModel.js';
 import moment from 'moment';
@@ -12,12 +12,12 @@ const loginWithEmailAndPassword = async (email, password) => {
   return user;
 };
 
-const getUserByRefreshToken = async (refreshToken) => {
-  const refreshTokenDoc = await Token.findOne({ token: refreshToken });
-  if (!refreshTokenDoc || refreshTokenDoc.expire > moment()) {
+const getUserIdByRefreshToken = async (refreshToken) => {
+  const userId = await tokenServices.verifyToken(refreshToken);
+  if (!userId) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
   }
-  return refreshTokenDoc
-}
+  return userId;
+};
 
-export { loginWithEmailAndPassword, getUserByRefreshToken };
+export { loginWithEmailAndPassword, getUserIdByRefreshToken };

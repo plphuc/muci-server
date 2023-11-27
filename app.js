@@ -23,6 +23,6 @@ app.get('/', function(req, res) {
 // convert error to ApiError
 app.use(errorConverter)
 // handle error
-app.use(errorHandler)
+// app.use(errorHandler)
 
 export default app;

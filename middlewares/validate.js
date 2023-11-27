@@ -32,19 +32,17 @@ const validateReq = (schema) => (req, res, next) => {
   return next();
 };
 
-const validateToken = async (schema) => (req, res, next) => {
+const validateToken = (schema) => (req, res, next) => {
   const checkToken = req.headers.authorization.split(' ');
   if (checkToken[0] === 'Bearer') {
-    const refreshToken = checkToken[1]; // Joi.compile convert object to Joi object
-    const { value, error } = Joi.compile(schema).validate(
-      { refreshToken },
-      {
-        abortEarly: false,
-        allowUnknown: true,
-      }
-    );
-    return next(new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token'));
+    const refreshToken = JSON.parse(checkToken[1]); // Joi.compile convert object to Joi object
+    const { value, error } = Joi.compile(schema).validate(refreshToken, {
+      abortEarly: false,
+      allowUnknown: true,
+    });
+    return next();
   }
+  return next(new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token'));
 };
 
 export { validateReq, validateToken };

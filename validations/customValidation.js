@@ -1,4 +1,4 @@
-const password = (value, helpers) => {
+const checkPassword = (value, helpers) => {
   if (value.length < 8) {
     return helpers.message('Password must be at least 8 characters')
   }
@@ -16,5 +16,5 @@ const password = (value, helpers) => {
 }
 
 export {
-  password
+  checkPassword
 }

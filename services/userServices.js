@@ -9,12 +9,20 @@ const createUser = async (userData) => {
   return User.create(userData);
 };
 
+const getUserByEmail = async (email) => {
+  const user = await User.findOne({email})
+  if (!user) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email not found');
+  }
+  return user;
+}
+
 const getUserById = async (id) => {
   const user = await User.findOne({_id: id})
   if (!user) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'User not found');
   }
-  return user;
+  return user._doc;
 }
 
-export { createUser, getUserById };
+export { createUser, getUserById, getUserByEmail };

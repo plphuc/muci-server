@@ -18,16 +18,14 @@ const generateToken = (userId, expireTime, secret = config.secret, type) => {
   return jwt.sign(payload, secret);
 };
 
-const verifyAccessToken = async (token) => {
-  const payload = jwt.verify(token, config.secret)
-  const currentTime = moment().unix()
-  if ((currentTime >= payload.exp) && (payload.type === 'access')) {
-    const user = await User.findById(payload.sub)
-    console.log(user);
-    return user
+const verifyToken = async (token) => {
+  const payload = jwt.verify(token, config.secret);
+  const currentTime = moment().unix();
+  if (currentTime >= payload.exp) {
+    return payload.sub;
   }
-   throw new ApiError(httpStatus.UNAUTHORIZED, 'access token is not valid')
-}
+  throw new ApiError(httpStatus.UNAUTHORIZED, 'Token is not valid');
+};
 
 // not save access token
 const saveToken = async (refreshToken, userId, expireTime, type) => {
@@ -59,7 +57,8 @@ const generateAuthTokens = async (user) => {
     refreshToken,
     user.id,
     refreshTokenExpireTime,
-    tokenTypes.REFRESH)
+    tokenTypes.REFRESH
+  );
 
   return {
     access: {
@@ -73,4 +72,4 @@ const generateAuthTokens = async (user) => {
   };
 };
 
-export { generateToken, generateAuthTokens, saveToken, verifyAccessToken };
+export { generateToken, generateAuthTokens, saveToken, verifyToken };
