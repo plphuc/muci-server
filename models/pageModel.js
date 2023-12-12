@@ -9,10 +9,7 @@ const pageSchema = new mongoose.Schema({
   icon: {
     type: String,
   },
-  backgroundImg: {},
-  description: {
-    type: String,
-  },
+  cover: {},
   owner: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'User',
@@ -23,7 +20,9 @@ const pageSchema = new mongoose.Schema({
   content: {
     type: String,
   },
+
   isFavPage: {type: Boolean, default: false},
+  
   sharedUser: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'User',

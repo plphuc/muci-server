@@ -13,14 +13,15 @@ const defaultRoutes = [
     route: authRouter,
   },
   {
-    path: '/pages',
+    path: '/page',
     route: pageRouter,
-  },
+  }, 
   {
     path: '/user',
     route: userRouter,
   },
 ];
+
 defaultRoutes.forEach((route) => {
   router.use(route.path, route.route);
 });

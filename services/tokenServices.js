@@ -2,12 +2,16 @@ import moment from 'moment';
 import config from '../config/config.js';
 import jwt from 'jsonwebtoken';
 import tokenTypes from '../config/token.js';
-import Token from '../models/tokenModel.js';
-import User from '../models/userModel.js';
 import ApiError from '../utils/apiError.js';
 import httpStatus from 'http-status';
+import getTokenFromHeader from '../utils/getTokenFromHeader.js';
 
-const generateToken = (userId, expireTime, secret = config.secret, type) => {
+const generateToken = (userId, type, secret = config.secret) => {
+  const expireTime =
+    type === 'access'
+      ? moment().add(config.accessTime, 'minutes')
+      : moment().add(config.refreshTime, 'days');
+
   const payload = {
     sub: userId,
     iat: moment().unix(),
@@ -15,61 +19,35 @@ const generateToken = (userId, expireTime, secret = config.secret, type) => {
     type,
   };
 
-  return jwt.sign(payload, secret);
+  return jwt.sign(payload, secret)
 };
 
-const verifyToken = async (token) => {
-  const payload = jwt.verify(token, config.secret);
-  const currentTime = moment().unix();
-  if (currentTime >= payload.exp) {
-    return payload.sub;
+const verifyToken = (token) => {
+  try {
+    const payload = jwt.verify(token, config.secret, { algorithms: ['HS256'] });
+    const currentTime = moment().unix();
+    if (currentTime < payload.exp) {
+      return payload.sub;
+    }
+  } catch {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Invalid token');
   }
-  throw new ApiError(httpStatus.UNAUTHORIZED, 'Token is not valid');
 };
 
-// not save access token
-const saveToken = async (refreshToken, userId, expireTime, type) => {
-  const tokenDoc = await Token.create({
-    token: refreshToken,
-    user: userId,
-    type,
-    expire: expireTime,
-  });
-  return tokenDoc;
-};
-
-const generateAuthTokens = async (user) => {
+const generateAuthTokens = (userId) => {
   // help set expire time, return will calculate from current and expire time
-  const accessTokenExpireTime = moment().add(config.expireTime, 'minutes');
-  const accessToken = generateToken(
-    user.id,
-    accessTokenExpireTime,
-    tokenTypes.ACCESS
-  );
-
-  const refreshTokenExpireTime = moment().add(config.refreshTime, 'days');
-  const refreshToken = generateToken(
-    user.id,
-    refreshTokenExpireTime,
-    tokenTypes.REFRESH
-  );
-  await saveToken(
-    refreshToken,
-    user.id,
-    refreshTokenExpireTime,
-    tokenTypes.REFRESH
-  );
+  const accessToken = generateToken(userId, tokenTypes.ACCESS);
+  const refreshToken = generateToken(userId, tokenTypes.REFRESH);
 
   return {
-    access: {
-      token: accessToken,
-      expires: accessTokenExpireTime,
-    },
-    refresh: {
-      token: refreshToken,
-      expires: refreshTokenExpireTime,
-    },
+    accessToken,
+    refreshToken,
   };
 };
 
-export { generateToken, generateAuthTokens, saveToken, verifyToken };
+const getUserIdByToken = (req) => {
+  const tokenReq = getTokenFromHeader(req);
+  const userId = verifyToken(tokenReq); 
+  return userId;
+}
+export { generateToken, generateAuthTokens, verifyToken, getUserIdByToken };

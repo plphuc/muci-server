@@ -1,9 +1,14 @@
-import express from 'express'
-import { userController } from '../controllers/index.js'
-import * as authValidate from '../validations/authValidation.js'
-import {validateToken} from '../middlewares/validate.js'
-const router = express.Router()
+import express from 'express';
+import { userController } from '../controllers/index.js';
+import { validateToken } from '../middlewares/validate.js';
+import { authValidate } from '../validations/index.js';
 
-router.get('/getUser', validateToken(authValidate.getUser), userController.getUser)
+const router = express.Router();
 
-export default router
+router.get(
+  '/getUser',
+  validateToken(authValidate.tokenSchema),
+  userController.getUser
+);
+
+export default router;

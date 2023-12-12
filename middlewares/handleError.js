@@ -7,16 +7,17 @@ import httpStatus from 'http-status';
  * create message and  status code
  */
 const errorConverter = (err, req, res, next) => {
+  console.log(err);
   if (!(err instanceof ApiError)) {
     err.statusCode =
       err.statusCode || err.statusCode instanceof mongoose.Error
-        ? httpStatus.BAD_REQUEST
+        ? err.statusCode
         : httpStatus.INTERNAL_SERVER_ERROR;
 
-    err.message = err.message || httpStatus[err.statusCode]
+    err.message = err.message || httpStatus[err.statusCode];
   }
-  const error = new ApiError(err.statusCode, err.message, false, err.stack)
-  next(error)
+  const error = new ApiError(err.statusCode, err.message, false, err.stack);
+  next(error);
 };
 
 /**

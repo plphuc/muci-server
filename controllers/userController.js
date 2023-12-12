@@ -1,7 +1,8 @@
-import mongoose from 'mongoose';
 import catchAsync from '../utils/catchAsync.js';
-import { authServices, userServices } from '../services/index.js';
+import { tokenServices, userServices } from '../services/index.js';
 import httpStatus from 'http-status';
+import getTokenFromHeader from '../utils/getTokenFromHeader.js';
+import tokenTypes from '../config/token.js';
 
 const createUser = catchAsync(async function (req, res, next) {
   const user = await userServices.createUser(req.body);
@@ -9,12 +10,16 @@ const createUser = catchAsync(async function (req, res, next) {
 });
 
 const getUser = catchAsync(async function (req, res, next) {
-  const refreshTokenReq = JSON.parse(req.headers.authorization.split(' ')[1]);
-  const userId = await authServices.getUserIdByRefreshToken(
-    refreshTokenReq
-  );
-  const {password, ...resData} = await userServices.getUserById(userId);
-  res.status(httpStatus.OK).send(resData);
+  const tokenReq = getTokenFromHeader(req);
+  const userId = tokenServices.verifyToken(tokenReq);
+  const { password, _id, ...resData } = await userServices.getUserById(userId);
+  const accessToken = tokenServices.generateToken(userId, tokenTypes.ACCESS);
+  res.status(httpStatus.OK).send({ ...resData, id: userId, accessToken });
 });
 
-export { createUser, getUser };
+const assignUserId = (req, res, next) => {
+  const userId = tokenServices.getUserIdByToken(req);
+  Object.assign(req, { userId });
+};
+
+export { createUser, getUser, assignUserId };
