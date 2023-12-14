@@ -3,6 +3,12 @@ import joiObjectid from "joi-objectid";
 
 const joiObjectId = joiObjectid(Joi);
 
+const getPageByIdSchema = {
+  query: Joi.object().keys({
+    pageId: joiObjectId().required(),
+  }),
+}
+
 const createPageSchema = {
   body: Joi.object().keys({
     title: Joi.string().required().invalid(''),
@@ -14,4 +20,15 @@ const createPageSchema = {
   }),
 }
 
-export { createPageSchema }
+const updatePageSchema = {
+  body: Joi.object().keys({
+    pageId: joiObjectId(),
+    title: Joi.string().invalid(''),
+    icon: Joi.string().invalid(''),
+    isFavPage: Joi.boolean(),
+    sharedUser: joiObjectId(),
+    content: Joi.string().invalid(''),
+  }),
+
+}
+export { createPageSchema, getPageByIdSchema, updatePageSchema }

@@ -4,6 +4,7 @@ import validator from 'validator';
 const pageSchema = new mongoose.Schema({
   title: {
     type: String,
+    default: 'Untitled',
     required: true,
   },
   icon: {
@@ -14,7 +15,6 @@ const pageSchema = new mongoose.Schema({
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'User',
     required: true, 
-    
   },
   pageChildren: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Page' }],
   content: {
@@ -26,7 +26,10 @@ const pageSchema = new mongoose.Schema({
   sharedUser: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'User',
-    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 

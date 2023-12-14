@@ -6,31 +6,32 @@ import coverRoutes from './coverRoutes.js';
 
 const router = express.Router();
 
-router.post(
-  '/save',
-  validateToken(authValidate.tokenSchema),
-  validateReq(authValidate.pageSchema),
-  pageController.savePage
-);
-
 router.get(
   '/getAllPages',
   validateToken(authValidate.tokenSchema),
-  pageController.getPages
+  pageController.getAllPages
 );
 
 router.get(
-  '/getPage',
+  '/getPageById',
   validateToken(authValidate.tokenSchema),
-  pageController.getPage
+  validateReq(pageValidate.getPageByIdSchema),
+  pageController.getPageById
 );
 
 router.post(
-  '/createPage',
+  '/add',
   validateToken(authValidate.tokenSchema),
-  validateReq(pageValidate.createPageSchema),
-  pageController.createPage
+  pageController.addPage
 );
+
+router.post(
+  '/update',
+  validateToken(authValidate.tokenSchema),
+  validateReq(pageValidate.getPageByIdSchema),
+  validateReq(pageValidate.updatePageSchema),
+  pageController.updatePage
+)
 
 router.use('/cover', coverRoutes);
 

@@ -24,7 +24,6 @@ const login = catchAsync(async (req, res) => {
 // If rftk has not expired, generate new access token
 const generateAccessToken = (req, res) => {
   const refreshToken = getTokenFromHeader(req);
-  console.log(refreshToken);
   const userId = tokenServices.verifyToken(refreshToken);
   const accessToken = tokenServices.generateToken(userId, tokenTypes.ACCESS);
   res.status(httpStatus.OK).send({ accessToken });

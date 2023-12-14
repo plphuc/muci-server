@@ -18,11 +18,4 @@ const loginSchema = {
     password: Joi.string().required().custom(checkPassword),
   }),
 };
-
-const pageSchema = {
-  body: Joi.object().keys({
-    title: Joi.string().required().invalid(''),
-    content: Joi.string().required().invalid(''),
-  }),
-};
-export { registerSchema, loginSchema, tokenSchema, pageSchema };
+export { registerSchema, loginSchema, tokenSchema };
