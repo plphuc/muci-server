@@ -49,6 +49,8 @@ const updatePage = async (userId, pageId, contentUpdate) => {
       { owner: userId, _id: pageId },
       contentUpdate
     );
+    console.log(contentUpdate);
+    console.log("pageToUpdate", pageToUpdate);
     if (!pageToUpdate) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Page not found');
     }

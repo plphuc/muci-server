@@ -3,7 +3,6 @@ import express from 'express';
 import routes from './routes/index.js';
 import { errorConverter, errorHandler } from './middlewares/handleError.js';
 import bodyParser from 'body-parser';
-import { upload } from './services/coverServices.js';
 
 const app = new express();
 
@@ -11,7 +10,6 @@ app.use(cors());
 app.use(bodyParser.json());
 // for parsing application/xwww-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }));
-// app.use('/uploadImage', routes.saveImgRouter);
 app.use('/', routes);
 
 app.get('/', function (req, res) {

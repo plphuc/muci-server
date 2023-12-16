@@ -1,9 +1,8 @@
-const formattedPageObject = (page) => ({
+const formattedPageObject = (page) => {
+  const {_id: id, ...rest} = page._doc;
+  return ({
   id: page._id,
-  title: page.title,
-  pageChildren: page.pageChildren,
-  isFavPage: page.isFavPage,
-  createdAt: page.createdAt,
-})
+  ...rest
+})}
 
 export default formattedPageObject;

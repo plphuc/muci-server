@@ -1,7 +1,7 @@
 import catchAsync from '../utils/catchAsync.js';
 
-const saveCover = catchAsync(async (req, res, next) => {
+const addCover = catchAsync(async (req, res, next) => {
   res.status(200).send(req.file);
 });
 
-export { saveCover };
+export { addCover };

@@ -22,7 +22,7 @@ const addPage  = catchAsync(async (req, res) => {
 
 const updatePage = catchAsync(async (req, res) => {
   const userId = tokenServices.getUserIdByToken(req)
-  const page = await pageServices.updatePage(userId, req.body)
+  const page = await pageServices.updatePage(userId, req.query.pageId, req.body)
   res.status(httpStatus.OK).send({page});
 })
 
