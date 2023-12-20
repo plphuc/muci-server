@@ -11,10 +11,23 @@ const router = express.Router()
 // })
 
 router.post(
-  '/add', 
+  '/', 
   validateToken(authValidate.tokenSchema),
   validateReq(pageValidate.getPageByIdSchema),
-  validateReq(coverValidate.addCoverSchema),
   coverController.addCover
   )
+  
+router.get(
+  '/',
+  validateToken(authValidate.tokenSchema),
+  validateReq(pageValidate.getPageByIdSchema),
+  coverController.getCover
+)
+
+router.delete(
+  '/',
+  validateToken(authValidate.tokenSchema),
+  validateReq(coverValidate.removeCoverSchema),
+  coverController.removeCover
+)
 export default router

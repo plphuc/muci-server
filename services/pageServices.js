@@ -2,6 +2,7 @@ import Page from '../models/pageModel.js';
 import httpStatus from 'http-status';
 import ApiError from '../utils/apiError.js';
 import formattedPageObject from '../views/formattedPageObject.js';
+import { Types } from 'mongoose';
 
 const getAllPages = async (userId) => {
   try {
@@ -47,13 +48,8 @@ const updatePage = async (userId, pageId, contentUpdate) => {
   try {
     const pageToUpdate = await Page.updateOne(
       { owner: userId, _id: pageId },
-      contentUpdate
+      contentUpdate,
     );
-    console.log(contentUpdate);
-    console.log("pageToUpdate", pageToUpdate);
-    if (!pageToUpdate) {
-      throw new ApiError(httpStatus.BAD_REQUEST, 'Page not found');
-    }
     return pageToUpdate;
   } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);

@@ -20,13 +20,13 @@ router.get(
 );
 
 router.post(
-  '/add',
+  '/',
   validateToken(authValidate.tokenSchema),
   pageController.addPage
 );
 
-router.post(
-  '/update',
+router.put(
+  '/',
   validateToken(authValidate.tokenSchema),
   validateReq(pageValidate.getPageByIdSchema),
   validateReq(pageValidate.updatePageSchema),

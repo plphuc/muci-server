@@ -6,7 +6,7 @@ import tokenTypes from '../config/token.js';
 
 const createUser = catchAsync(async function (req, res, next) {
   const user = await userServices.createUser(req.body);
-  res.status(httpStatus.CREATED).send(user);
+  res.status(httpStatus.CREATED).send({user, acknowledged: true});
 });
 
 const getUser = catchAsync(async function (req, res, next) {
@@ -17,7 +17,7 @@ const getUser = catchAsync(async function (req, res, next) {
   res.status(httpStatus.OK).send({ ...resData, id: userId, accessToken });
 });
 
-const assignUserId = (req, res, next) => {
+const assignUserId = (req) => {
   const userId = tokenServices.getUserIdByToken(req);
   Object.assign(req, { userId });
 };

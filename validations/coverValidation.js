@@ -6,4 +6,11 @@ const addCoverSchema = {
   })
 }
 
-export { addCoverSchema }
+const removeCoverSchema = {
+  query: Joi.object().keys({
+    coverId: Joi.string().required(),
+    pageId: Joi.string().required()
+  })
+}
+
+export { addCoverSchema, removeCoverSchema }

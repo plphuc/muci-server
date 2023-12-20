@@ -10,19 +10,19 @@ const pageSchema = new mongoose.Schema({
   icon: {
     type: String,
   },
-  cover: {},
+  cover: { type: mongoose.SchemaTypes.ObjectId, ref: 'Photo' },
   owner: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'User',
-    required: true, 
+    required: true,
   },
   pageChildren: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Page' }],
   content: {
     type: String,
   },
 
-  isFavPage: {type: Boolean, default: false},
-  
+  isFavPage: { type: Boolean, default: false },
+
   sharedUser: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: 'User',

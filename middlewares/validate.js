@@ -11,6 +11,9 @@ const sampleUser = {
 };
 
 const validateReq = (schema) => (req, res, next) => {
+  if (req.headers['content-type']?.includes('multipart/form-data')) {
+    return next();
+  };
   // get keys that are needed to validate from objectToValidate
   const validSchema = pickKeys(schema, ['params', 'query', 'body']);
   const objectToValidate = pickKeys(req, Object.keys(validSchema));

@@ -9,3 +9,5 @@ mongoose.connect(config.uriMongoDB).then(() => {
     console.log('Listening to port 8080');
   });
 });
+
+export const db = await mongoose.createConnection(config.uriMongoDB).asPromise();
