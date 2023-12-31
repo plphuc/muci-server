@@ -33,6 +33,14 @@ router.put(
   pageController.updatePage
 )
 
+router.delete(
+  '/',
+  validateToken(authValidate.tokenSchema),
+  validateReq(pageValidate.getPageByIdSchema),
+  validateReq(pageValidate.deletePageSchema),
+  pageController.deletePage
+);
+
 router.use('/cover', coverRoutes);
 
 export default router;

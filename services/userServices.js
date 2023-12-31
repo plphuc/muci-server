@@ -12,7 +12,7 @@ const createUser = async (userData) => {
 const getUserByEmail = async (email) => {
   const user = await User.findOne({email})
   if (!user) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email not found');
+    throw new ApiError(httpStatus.NOT_FOUND, 'Email not found');
   }
   return user;
 }
@@ -20,7 +20,7 @@ const getUserByEmail = async (email) => {
 const getUserById = async (id) => {
   const user = await User.findOne({_id: id})
   if (!user) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'User not found');
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
   return user._doc;
 }

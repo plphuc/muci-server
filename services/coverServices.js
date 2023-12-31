@@ -22,10 +22,7 @@ const addCoverWrapper = async (req, res) => {
     const { id: newCoverId } = req.file;
 
     //  check if page already has cover. Yes -> remove
-    const { cover } = await pageServices.getPageById(
-      req.userId,
-      req.query.pageId
-    );
+    const { cover } = await pageServices.getPageById(req.query.pageId);
     if (cover) {
       const deletedCover = await fileServices.deletePhoto(cover);
 
@@ -65,6 +62,7 @@ const removeCoverWrapper = async (req, res) => {
   try {
     session = await db.startSession();
     session.startTransaction();
+
     const updatedPage = await Page.updateOne(
       {
         owner: new Types.ObjectId(req.userId),
@@ -74,7 +72,7 @@ const removeCoverWrapper = async (req, res) => {
     );
 
     if (updatedPage.modifiedCount === 0) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'Remove cover failed');
+      throw new ApiError(httpStatus.NOT_FOUND, 'Page not found');
     }
     const deletedCover = await fileServices.deletePhoto(req.query.coverId);
 
@@ -90,10 +88,7 @@ const removeCoverWrapper = async (req, res) => {
   } catch (err) {
     await session.abortTransaction();
 
-    if (err.statusCode !== httpStatus.INTERNAL_SERVER_ERROR) {
-      throw new ApiError(err.statusCode, err.message);
-    }
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+    throw new ApiError(err.statusCode, err.message);
   } finally {
     session?.endSession();
   }

@@ -17,11 +17,20 @@ const pageSchema = new mongoose.Schema({
     required: true,
   },
   pageChildren: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Page' }],
-  content: {
+  version: {
     type: String,
   },
-
+  blocks: [
+    {
+      type: Object,
+    },
+  ],
+  time: {
+    type: Date,
+    default: Date.now,
+  },
   isFavPage: { type: Boolean, default: false },
+  fontName: {type: String, default: "'Raleway', monospace"},
 
   sharedUser: {
     type: mongoose.SchemaTypes.ObjectId,
@@ -32,6 +41,11 @@ const pageSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+pageSchema.statics.isOwner = async function (pageId, userId) {
+  const page = await this.findOne({ _id: pageId });
+  return page.owner.toString() === userId.toString();
+};
 
 const Page = mongoose.model('Page', pageSchema);
 export default Page;

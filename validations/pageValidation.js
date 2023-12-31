@@ -29,6 +29,12 @@ const updatePageSchema = {
     sharedUser: joiObjectId(),
     content: Joi.string().invalid(''),
   }),
-
 }
-export { createPageSchema, getPageByIdSchema, updatePageSchema }
+
+const deletePageSchema = {
+  query: Joi.object().keys({
+    pageId: joiObjectId().required(),
+  }),
+}
+
+export { createPageSchema, getPageByIdSchema, updatePageSchema, deletePageSchema }
