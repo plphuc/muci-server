@@ -7,9 +7,9 @@ import coverRoutes from './coverRoutes.js';
 const router = express.Router();
 
 router.get(
-  '/getAllPages',
+  '/getTitleAllPages',
   validateToken(authValidate.tokenSchema),
-  pageController.getAllPages
+  pageController.getTitleAllPages
 );
 
 router.get(

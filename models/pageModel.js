@@ -17,6 +17,7 @@ const pageSchema = new mongoose.Schema({
     required: true,
   },
   pageChildren: [{ type: mongoose.SchemaTypes.ObjectId, ref: 'Page' }],
+  parent: { type: mongoose.SchemaTypes.ObjectId, ref: 'Page' },
   version: {
     type: String,
   },
@@ -40,11 +41,17 @@ const pageSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  level: {
+    type: Number,
+    default: 0,
+    min: 0,
+    max: 2
+  }
 });
 
 pageSchema.statics.isOwner = async function (pageId, userId) {
   const page = await this.findOne({ _id: pageId });
-  return page.owner.toString() === userId.toString();
+  return page?.owner.toString() === userId.toString();
 };
 
 const Page = mongoose.model('Page', pageSchema);

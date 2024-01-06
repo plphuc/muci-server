@@ -5,27 +5,27 @@ import formattedPageObject from '../views/formattedPageObject.js';
 import { Types } from 'mongoose';
 import { db } from '../index.js';
 
-const getAllPages = async (userId) => {
+const getTitleAllPages = async (userId) => {
   try {
-    const pages = await Page.find({ owner: userId });
+    const pages = await Page.find({ owner: userId }, { title: 1, icon: 1 });
     if (!pages.length) {
       throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
     }
 
-    const formattedPages = pages.map((page) => {
+    const formattedTitlePages = pages.map((page) => {
       return formattedPageObject(page);
     });
-    return formattedPages;
+    return formattedTitlePages;
   } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
   }
 };
 
-const getPageById = async ( pageId) => {
+const getPageById = async (pageId) => {
   try {
     const page = await Page.findOne({ _id: pageId });
     if (!page) {
-      return null;
+      throw new ApiError(httpStatus.NOT_FOUND, 'Page not found');
     }
     return formattedPageObject(page);
   } catch (err) {
@@ -33,15 +33,38 @@ const getPageById = async ( pageId) => {
   }
 };
 
-const addPage = async (userId) => {
+const addPage = async (userId, parentPageId) => {
+  let session = null;
   try {
-    const page = await Page.create({ owner: userId });
-    if (!page) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+    session = await db.startSession();
+    session.startTransaction();
+
+    if (parentPageId) {
+      const page = await Page.findOne({ _id: parentPageId });
+      const pageLevel = page.level + 1;
+
+      if (pageLevel > 2) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Page level is too deep');
+      }
+
+      const newPage = await Page.create({ owner: userId, level: pageLevel, parent: parentPageId });
+      const updateParentResult = await updatePage(userId, parentPageId, { $push: { pageChildren: newPage._id } })
+
+      if (!updateParentResult.acknowledged) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Update parent failed');
+      }
+      await session.commitTransaction();
+      return newPage;
     }
+    
+    const page = await Page.create({ owner: userId, level: 0 });
+    await session.commitTransaction();
     return page;
   } catch (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+    await session.abortTransaction();
+    throw new ApiError(err.statusCode, err.message);
+  } finally {
+    session?.endSession();
   }
 };
 
@@ -49,9 +72,7 @@ const updatePage = async (userId, pageId, contentUpdate) => {
   try {
     const pageToUpdate = await Page.updateOne(
       { owner: new Types.ObjectId(userId), _id: new Types.ObjectId(pageId) },
-      {
-        $set: {...contentUpdate},
-      }
+      contentUpdate
     );
     return pageToUpdate;
   } catch (err) {
@@ -69,5 +90,5 @@ const deletePage = async (userId, pageId) => {
   } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
   }
-}
-export { getPageById, getAllPages, addPage, updatePage, deletePage };
+};
+export { getPageById, getTitleAllPages, addPage, updatePage, deletePage };

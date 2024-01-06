@@ -47,11 +47,7 @@ const addCoverWrapper = async (req, res) => {
     return newCoverId;
   } catch (err) {
     await session.abortTransaction();
-
-    if (err.statusCode !== httpStatus.INTERNAL_SERVER_ERROR) {
-      throw new ApiError(err.statusCode, err.message);
-    }
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+    throw new ApiError(err.statusCode, err.message);
   } finally {
     session?.endSession();
   }
@@ -87,7 +83,6 @@ const removeCoverWrapper = async (req, res) => {
     await session.commitTransaction();
   } catch (err) {
     await session.abortTransaction();
-
     throw new ApiError(err.statusCode, err.message);
   } finally {
     session?.endSession();
