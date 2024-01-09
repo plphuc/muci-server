@@ -7,9 +7,16 @@ import coverRoutes from './coverRoutes.js';
 const router = express.Router();
 
 router.get(
-  '/getTitleAllPages',
+  '/getMetaAllPages',
   validateToken(authValidate.tokenSchema),
-  pageController.getTitleAllPages
+  pageController.getMetaAllPages
+);
+
+router.get(
+  '/getMetaPage',
+  validateToken(authValidate.tokenSchema),
+  validateReq(pageValidate.getPageByIdSchema),
+  pageController.getMetaPage
 );
 
 router.get(
@@ -17,6 +24,12 @@ router.get(
   validateToken(authValidate.tokenSchema),
   validateReq(pageValidate.getPageByIdSchema),
   pageController.getPageById
+);
+
+router.get(
+  '/getPathPage',
+  validateReq(pageValidate.getPageByIdSchema),
+  pageController.getPathPage
 );
 
 router.post(

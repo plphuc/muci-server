@@ -4,11 +4,21 @@ import { pageServices, tokenServices } from '../services/index.js';
 import ApiError from '../utils/apiError.js';
 import Page from '../models/pageModel.js';
 
-const getTitleAllPages = catchAsync(async (req, res) => {
+const getMetaAllPages = catchAsync(async (req, res) => {
   const userId = tokenServices.getUserIdByToken(req);
-  const titlePages = await pageServices.getTitleAllPages(userId);
+  const metaPages = await pageServices.getMetaAllPages(userId);
 
-  res.status(httpStatus.OK).send({ pages: titlePages });
+  res.status(httpStatus.OK).send({ pages: metaPages });
+});
+
+const getMetaPage = catchAsync(async (req, res) => {
+  const userId = tokenServices.getUserIdByToken(req);
+  const metaPage = await pageServices.getMetaPage({
+    userId,
+    pageId: req.query.pageId,
+  });
+
+  res.status(httpStatus.OK).send({ page: metaPage });
 });
 
 const getPageById = catchAsync(async (req, res) => {
@@ -19,11 +29,16 @@ const getPageById = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send({ page });
 });
 
+const getPathPage = catchAsync(async (req, res) => {
+  const path = await pageServices.getPathPage(req.query.pageId);
+  res.status(httpStatus.OK).send({ path });
+});
+
 const addPage = catchAsync(async (req, res) => {
   const userId = tokenServices.getUserIdByToken(req);
-  const parentPageId = req.query.parentPageId;
+  const parentId = req.query.parentId;
 
-  const { _id: id } = await pageServices.addPage(userId, parentPageId);
+  const { _id: id } = await pageServices.addPage(userId, parentId);
   res.status(httpStatus.CREATED).send({ id, acknowledged: true });
 });
 
@@ -34,13 +49,9 @@ const updatePage = catchAsync(async (req, res) => {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized!');
   }
 
-  const updateResult = await pageServices.updatePage(
-    userId,
-    req.query.pageId,
-    {
-      $set: { ...req.body },
-    }
-  );
+  const updateResult = await pageServices.updatePage(userId, req.query.pageId, {
+    $set: { ...req.body },
+  });
   if (!updateResult.acknowledged) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Update failed');
   }
@@ -61,4 +72,12 @@ const deletePage = catchAsync(async (req, res) => {
   res.status(httpStatus.OK).send({ acknowledged: true });
 });
 
-export { addPage, updatePage, deletePage, getPageById, getTitleAllPages };
+export {
+  addPage,
+  updatePage,
+  deletePage,
+  getPageById,
+  getMetaAllPages,
+  getMetaPage,
+  getPathPage
+};

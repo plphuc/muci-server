@@ -5,11 +5,14 @@ import formattedPageObject from '../views/formattedPageObject.js';
 import { Types } from 'mongoose';
 import { db } from '../index.js';
 
-const getTitleAllPages = async (userId) => {
+const getMetaAllPages = async (userId) => {
   try {
-    const pages = await Page.find({ owner: userId }, { title: 1, icon: 1 });
+    const pages = await Page.find(
+      { owner: userId, level: 0 },
+      { title: 1, icon: 1, level: 1, pageChildren: 1 }
+    );
     if (!pages.length) {
-      throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+      throw new ApiError(httpStatus.NOT_FOUND, 'User has no pages');
     }
 
     const formattedTitlePages = pages.map((page) => {
@@ -18,6 +21,46 @@ const getTitleAllPages = async (userId) => {
     return formattedTitlePages;
   } catch (err) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+  }
+};
+
+const getMetaPage = async ({ userId, pageId }) => {
+  try {
+    const page = await Page.findOne(
+      { owner: userId, _id: pageId },
+      { title: 1, icon: 1, level: 1, pageChildren: 1 }
+    );
+    if (!page) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Page not found');
+    }
+    return formattedPageObject(page);
+  } catch (err) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+  }
+};
+
+const getPathPage = async (pageId) => {
+  try {
+    const path = [];
+    let id = pageId;
+
+    while (true) {
+      const page = await Page.findOne(
+        { _id: id },
+        { title: 1, icon: 1, level: 1, parent: 1 }
+      );
+      if (!page) {
+        throw new ApiError(httpStatus.NOT_FOUND, 'Page not found');
+      }
+      path.push({ title: page.title, icon: page.icon });
+
+      if (page.level === 0) {
+        return path;
+      }
+      id = page.parent;
+    }
+  } catch (err) {
+    throw new ApiError(err.statusCode, err.message);
   }
 };
 
@@ -41,22 +84,29 @@ const addPage = async (userId, parentPageId) => {
 
     if (parentPageId) {
       const page = await Page.findOne({ _id: parentPageId });
-      const pageLevel = page.level + 1;
+      const newPageLevel = page.level + 1;
 
-      if (pageLevel > 2) {
-        throw new ApiError(httpStatus.BAD_REQUEST, 'Page level is too deep');
+      if (newPageLevel > 2) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Maximum level is 3');
       }
 
-      const newPage = await Page.create({ owner: userId, level: pageLevel, parent: parentPageId });
-      const updateParentResult = await updatePage(userId, parentPageId, { $push: { pageChildren: newPage._id } })
+      const newPage = await Page.create({
+        owner: userId,
+        level: newPageLevel,
+        parent: parentPageId,
+      });
 
-      if (!updateParentResult.acknowledged) {
+      const updateParentPage = await updatePage(userId, parentPageId, {
+        $push: { pageChildren: newPage._id },
+      });
+
+      if (!updateParentPage.acknowledged) {
         throw new ApiError(httpStatus.BAD_REQUEST, 'Update parent failed');
       }
       await session.commitTransaction();
       return newPage;
     }
-    
+
     const page = await Page.create({ owner: userId, level: 0 });
     await session.commitTransaction();
     return page;
@@ -81,14 +131,53 @@ const updatePage = async (userId, pageId, contentUpdate) => {
 };
 
 const deletePage = async (userId, pageId) => {
+  let session = null;
   try {
-    const pageToDelete = await Page.deleteOne({
+    session = await db.startSession();
+    session.startTransaction();
+
+    const pageToDelete = await Page.findOne({
       owner: new Types.ObjectId(userId),
       _id: new Types.ObjectId(pageId),
     });
+
+    if (!pageToDelete) {
+      throw new ApiError(httpStatus.NOT_FOUND, 'Page not found');
+    }
+
+    if (pageToDelete?.parent) {
+      const updateParentPage = await updatePage(userId, pageToDelete.parent, {
+        $pull: { pageChildren: pageId },
+      });
+
+      if (!updateParentPage.acknowledged) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Update parent failed');
+      }
+    }
+
+    const deleteResult = await Page.deleteOne({
+      owner: new Types.ObjectId(userId),
+      _id: new Types.ObjectId(pageId),
+    });
+
+    if (!deleteResult.acknowledged) {
+      throw new ApiError(httpStatus.BAD_REQUEST, 'Delete page failed');
+    }
+    await session.commitTransaction();
     return pageToDelete;
   } catch (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+    await session.abortTransaction();
+    throw new ApiError(err.statusCode, err.message);
+  } finally {
+    session?.endSession();
   }
 };
-export { getPageById, getTitleAllPages, addPage, updatePage, deletePage };
+export {
+  getPageById,
+  getMetaAllPages,
+  getMetaPage,
+  addPage,
+  updatePage,
+  deletePage,
+  getPathPage,
+};
