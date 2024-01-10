@@ -8,8 +8,8 @@ import { db } from '../index.js';
 const getMetaAllPages = async (userId) => {
   try {
     const pages = await Page.find(
-      { owner: userId, level: 0 },
-      { title: 1, icon: 1, level: 1, pageChildren: 1 }
+      { owner: userId },
+      { title: 1, icon: 1, level: 1, pageChildren: 1, parent: 1 }
     );
     if (!pages.length) {
       throw new ApiError(httpStatus.NOT_FOUND, 'User has no pages');
@@ -20,7 +20,7 @@ const getMetaAllPages = async (userId) => {
     });
     return formattedTitlePages;
   } catch (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+    throw new ApiError(err.statusCode, err.message);
   }
 };
 
@@ -35,7 +35,7 @@ const getMetaPage = async ({ userId, pageId }) => {
     }
     return formattedPageObject(page);
   } catch (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+    throw new ApiError(err.statusCode, err.message);
   }
 };
 
@@ -52,7 +52,7 @@ const getPathPage = async (pageId) => {
       if (!page) {
         throw new ApiError(httpStatus.NOT_FOUND, 'Page not found');
       }
-      path.push({ title: page.title, icon: page.icon });
+      path.push({ id: page._id, title: page.title, icon: page.icon });
 
       if (page.level === 0) {
         return path;
@@ -72,7 +72,7 @@ const getPageById = async (pageId) => {
     }
     return formattedPageObject(page);
   } catch (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+    throw new ApiError(err.statusCode, err.message);
   }
 };
 
@@ -126,7 +126,7 @@ const updatePage = async (userId, pageId, contentUpdate) => {
     );
     return pageToUpdate;
   } catch (err) {
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, err.message);
+    throw new ApiError(err.statusCode, err.message);
   }
 };
 
@@ -137,15 +137,15 @@ const deletePage = async (userId, pageId) => {
     session.startTransaction();
 
     const pageToDelete = await Page.findOne({
-      owner: new Types.ObjectId(userId),
-      _id: new Types.ObjectId(pageId),
+      owner: userId,
+      _id: pageId
     });
 
     if (!pageToDelete) {
       throw new ApiError(httpStatus.NOT_FOUND, 'Page not found');
     }
 
-    if (pageToDelete?.parent) {
+    if (pageToDelete.parent) {
       const updateParentPage = await updatePage(userId, pageToDelete.parent, {
         $pull: { pageChildren: pageId },
       });
@@ -155,16 +155,27 @@ const deletePage = async (userId, pageId) => {
       }
     }
 
+    if (pageToDelete.pageChildren.length > 0) {
+      const deleteChildrenResult = await Page.deleteMany({
+        _id: { $in: pageToDelete.pageChildren },
+      });
+
+      if (!deleteChildrenResult.acknowledged) {
+        throw new ApiError(httpStatus.BAD_REQUEST, 'Delete children failed');
+      }
+    }
+
     const deleteResult = await Page.deleteOne({
-      owner: new Types.ObjectId(userId),
-      _id: new Types.ObjectId(pageId),
+      owner: userId,
+      _id: pageId,
     });
 
     if (!deleteResult.acknowledged) {
       throw new ApiError(httpStatus.BAD_REQUEST, 'Delete page failed');
     }
+
     await session.commitTransaction();
-    return pageToDelete;
+    return deleteResult;
   } catch (err) {
     await session.abortTransaction();
     throw new ApiError(err.statusCode, err.message);

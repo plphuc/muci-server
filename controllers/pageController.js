@@ -64,11 +64,7 @@ const deletePage = catchAsync(async (req, res) => {
   if (!Page.isOwner(req.query.pageId, userId)) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized!');
   }
-
-  const deleteResult = await pageServices.deletePage(userId, req.query.pageId);
-  if (!deleteResult.acknowledged) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Delete failed');
-  }
+  await pageServices.deletePage(userId, req.query.pageId);
   res.status(httpStatus.OK).send({ acknowledged: true });
 });
 
