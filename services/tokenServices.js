@@ -2,7 +2,7 @@ import moment from 'moment';
 import config from '../config/config.js';
 import jwt from 'jsonwebtoken';
 import tokenTypes from '../config/token.js';
-import ApiError from '../utils/apiError.js';
+import ApiError from '../utils/ApiError.js';
 import httpStatus from 'http-status';
 import getTokenFromHeader from '../utils/getTokenFromHeader.js';
 

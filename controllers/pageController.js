@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import catchAsync from '../utils/catchAsync.js';
 import { pageServices, tokenServices } from '../services/index.js';
-import ApiError from '../utils/apiError.js';
+import ApiError from '../utils/ApiError.js';
 import Page from '../models/pageModel.js';
 
 const getMetaAllPages = catchAsync(async (req, res) => {

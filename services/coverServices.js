@@ -1,4 +1,4 @@
-import ApiError from '../utils/apiError.js';
+import ApiError from '../utils/ApiError.js';
 import { fileServices, pageServices } from './index.js';
 import httpStatus from 'http-status';
 import { uploadFileMiddleware } from '../middlewares/uploadFileMW.js';
