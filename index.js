@@ -4,7 +4,7 @@ import config from './config/config.js';
 let server;
 
 mongoose.connect(config.uriMongoDB).then(() => {
-  console.log('Connected to databse');
+  console.log('Connected to database');
   server = app.listen(config.port, async() => {
     console.log('Listening to port 8080');
   });
