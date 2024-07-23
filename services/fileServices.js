@@ -1,6 +1,6 @@
 import { db } from '../index.js';
 import { GridFSBucket } from 'mongodb';
-import ApiError from '../utils/apiError.js';
+import ApiError from '../utils/ApiError.js';
 import httpStatus from 'http-status';
 import { Types } from 'mongoose';
 

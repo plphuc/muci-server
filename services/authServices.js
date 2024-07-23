@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import { userServices } from './index.js';
-import ApiError from '../utils/apiError.js';
+import ApiError from '../utils/ApiError.js';
 
 const loginWithEmailAndPassword = async (email, password) => {
   const user = await userServices.getUserByEmail(email);

@@ -1,7 +1,7 @@
-import saveImgRouter from './saveImgRouter.js';
 import authRouter from './authRoutes.js';
 import pageRouter from './pageRoutes.js';
 import userRouter from './userRoutes.js';
+import checkRoute from './indexRoute.js';
 
 import express from 'express';
 
@@ -20,6 +20,10 @@ const defaultRoutes = [
     path: '/user',
     route: userRouter,
   },
+  {
+    path: '/',
+    route: checkRoute
+  }
 ];
 
 defaultRoutes.forEach((route) => {

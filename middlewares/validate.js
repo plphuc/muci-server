@@ -1,5 +1,5 @@
 import httpStatus from 'http-status';
-import ApiError from '../utils/apiError.js';
+import ApiError from '../utils/ApiError.js';
 import pickKeys from '../utils/pickKeys.js';
 import Joi from 'joi';
 

@@ -1,6 +1,6 @@
 import Page from '../models/pageModel.js';
 import httpStatus from 'http-status';
-import ApiError from '../utils/apiError.js';
+import ApiError from '../utils/ApiError.js';
 import formattedPageObject from '../views/formattedPageObject.js';
 import { Types } from 'mongoose';
 import { db } from '../index.js';
