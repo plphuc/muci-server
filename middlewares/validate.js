@@ -3,13 +3,6 @@ import ApiError from '../utils/apiError.js';
 import pickKeys from '../utils/pickKeys.js';
 import Joi from 'joi';
 
-const sampleUser = {
-  username: 'squidysupervip',
-  name: 'Thành Vũ',
-  email: 'vcngthnh@gmail.com',
-  password: '/PYYN/k0DAPFIjCqiNB/tgi/GbH6GI6/LiIhfRoSl4Y=',
-};
-
 const validateReq = (schema) => (req, res, next) => {
   if (req.headers['content-type']?.includes('multipart/form-data')) {
     return next();

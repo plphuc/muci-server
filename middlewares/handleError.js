@@ -7,7 +7,6 @@ import httpStatus from 'http-status';
  * create message and  status code
  */
 const errorConverter = (err, req, res, next) => {
-  console.log(err);
   if (!(err instanceof ApiError)) {
     err.statusCode =
       err.statusCode || err.statusCode instanceof mongoose.Error
