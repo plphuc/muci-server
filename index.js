@@ -365,4 +365,4 @@ _mongoose["default"].connect(_config["default"].uriMongoDB).then(function () {
     }, _callee);
   })));
 });
-var db = exports.db = await _mongoose["default"].createConnection(_config["default"].uriMongoDB).asPromise();
+exports.db = await _mongoose["default"].createConnection(_config["default"].uriMongoDB).asPromise();
