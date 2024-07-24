@@ -1,5 +1,9 @@
 "use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 function _typeof(o) {
   "@babel/helpers - typeof";
 
@@ -365,4 +369,14 @@ _mongoose["default"].connect(_config["default"].uriMongoDB).then(function () {
     }, _callee);
   })));
 });
-exports.db = await _mongoose["default"].createConnection(_config["default"].uriMongoDB).asPromise();
+async function connectDb() {
+  try {
+    const connection = await _mongoose["default"].createConnection(_config["default"].uriMongoDB).asPromise();
+    console.log("Database connection successfully");
+    return connection;
+  } catch (e) {
+    console.error("Database connection error: ", e);
+    throw e;
+  }
+}
+var _default = exports.default = connectDb();
