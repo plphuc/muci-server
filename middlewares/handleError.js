@@ -1,21 +1,23 @@
-import mongoose from 'mongoose';
-import ApiError from '../utils/ApiError.js';
-import httpStatus from 'http-status';
+"use strict";
 
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.errorHandler = exports.errorConverter = void 0;
+var _mongoose = _interopRequireDefault(require("mongoose"));
+var _ApiError = _interopRequireDefault(require("../utils/ApiError.js"));
+var _httpStatus = _interopRequireDefault(require("http-status"));
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
 /**
  * Convert error to ApiError
  * create message and  status code
  */
-const errorConverter = (err, req, res, next) => {
-  if (!(err instanceof ApiError)) {
-    err.statusCode =
-      err.statusCode || err.statusCode instanceof mongoose.Error
-        ? err.statusCode
-        : httpStatus.INTERNAL_SERVER_ERROR;
-
-    err.message = err.message || httpStatus[err.statusCode];
+var errorConverter = exports.errorConverter = function errorConverter(err, req, res, next) {
+  if (!(err instanceof _ApiError["default"])) {
+    err.statusCode = err.statusCode || err.statusCode instanceof _mongoose["default"].Error ? err.statusCode : _httpStatus["default"].INTERNAL_SERVER_ERROR;
+    err.message = err.message || _httpStatus["default"][err.statusCode];
   }
-  const error = new ApiError(err.statusCode, err.message, false, err.stack);
+  var error = new _ApiError["default"](err.statusCode, err.message, false, err.stack);
   next(error);
 };
 
@@ -23,15 +25,14 @@ const errorConverter = (err, req, res, next) => {
  * Handle error
  * Send status code, error message, stack trace to client
  */
-const errorHandler = (err, req, res, next) => {
-  const { message, statusCode, stack } = err;
-  const response = {
+var errorHandler = exports.errorHandler = function errorHandler(err, req, res, next) {
+  var message = err.message,
+    statusCode = err.statusCode,
+    stack = err.stack;
+  var response = {
     code: statusCode,
-    message,
-    stack: stack,
+    message: message,
+    stack: stack
   };
-
   res.status(statusCode).send(response);
 };
-
-export { errorHandler, errorConverter };
