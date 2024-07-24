@@ -13,8 +13,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/', routes);
 
-app.get('/', function (req, res) {});
-
 // convert error to ApiError
 app.use(errorConverter);
 // handle error
